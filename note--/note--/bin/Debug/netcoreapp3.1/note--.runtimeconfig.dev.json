@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\kisam\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\kisam\\.nuget\\packages"
+    ]
+  }
+}
