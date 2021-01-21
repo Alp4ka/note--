@@ -44,7 +44,68 @@ namespace note__
             rtb.Rtf = cached.Redo();
             rtb.SelectionStart = rtb.Text.Length;
         }
+        private void FormatCurrentFile(object sender, EventArgs e)
+        {
+            TabPage selectedTab = this.tabControl1.SelectedTab;
+            var rtb = (selectedTab.Controls.Find("rtb", true)[0] as RichTextBox);
+            string text = rtb.Text;
+            text = text.Replace("{", "\n{\n");
+            text = text.Replace("}", "\n}\n");
+            text = text.Replace(";", ";\n");
+            string newText = "";
+            while (true)
+            {
+                newText = text.Replace("\n\n", "\n");
+                if (newText == text)
+                {
+                    break;
+                }
+                else
+                {
+                    text = newText;
+                }
+            }
+            string[] textArray = text.Split("\n");
 
+            List<string> newStringArray = new List<string>();
+
+            /*for(int i =0; i < textArray.Length; ++i)
+            {
+                textArray[i] = textArray[i].Trim();
+                var indexL = textArray[i].IndexOf('{')
+                if (indexL != -1 && textArray[i].Length != 1)
+                {
+                    textArray[i].Replace("{", "\n{\n");
+                    newStringArray.Add(textArra)
+                }
+
+                else if()
+            }
+            MessageBox.Show(text);*/
+            for(int i =0; i < textArray.Length; ++i)
+            {
+                if (!String.IsNullOrWhiteSpace(textArray[i].Trim()))
+                {
+                    newStringArray.Add(textArray[i]);
+                }
+            }
+            int tabCnter = 0;
+            for(int i = 0; i < newStringArray.Count; ++i)
+            {
+                if (newStringArray[i].Contains('}'))
+                {
+                    tabCnter = Utils.ReturnEdged(0, 100, tabCnter - 1);
+                }
+                newStringArray[i] = new String(' ', 4 * tabCnter) + newStringArray[i].TrimStart();
+                if(newStringArray[i].Contains('{'))
+                {
+                    tabCnter = Utils.ReturnEdged(0, 100, tabCnter+1);
+                }
+                
+            }
+            text = String.Join("\n", newStringArray);
+            rtb.Text = text;
+        }
         private void Kdown(object sender, KeyEventArgs e)
         {
             if(e!= null)
@@ -147,10 +208,12 @@ namespace note__
             copyItem.Click += new EventHandler(CopySelected);
             //copyItem.ShortcutKeys = (Keys.Control | Keys.C);
             ToolStripMenuItem cutItem = new ToolStripMenuItem("Cut");
+            cutItem.Click += new EventHandler(CutSelected);
             ToolStripMenuItem pasteItem = new ToolStripMenuItem("Paste");
             //pasteItem.ShortcutKeys = (Keys.Control | Keys.V);
             pasteItem.Click += new EventHandler(Paste);
             ToolStripMenuItem selectAllItem = new ToolStripMenuItem("Select All");
+            selectAllItem.Click += new EventHandler(SelectAllText);
             List<ToolStripMenuItem> temp = (new[] { copyItem, pasteItem, cutItem, selectAllItem, }).ToList();
             temp.ForEach(x => x.DisplayStyle = ToolStripItemDisplayStyle.Text);
             cms.Items.AddRange(temp.ToArray());
@@ -186,7 +249,7 @@ namespace note__
             return rtb;
             
         }
-        
+
 
         private void CopySelected(object sender, EventArgs e)
         {
@@ -199,7 +262,21 @@ namespace note__
             {
                 return;
             }
-           // MessageBox.Show(Clipboard.GetData(DataFormats.Rtf).ToString());
+            // MessageBox.Show(Clipboard.GetData(DataFormats.Rtf).ToString());
+        }
+        
+        private void SelectAllText(object sender, EventArgs e)
+        {
+            try
+            {
+                var rtb = tabControl1.SelectedTab.Controls.Find("rtb", true)[0] as RichTextBox;
+                rtb.SelectAll();
+            }
+            catch
+            {
+                return;
+            }
+            // MessageBox.Show(Clipboard.GetData(DataFormats.Rtf).ToString());
         }
 
         private void Paste(object sender, EventArgs e)
@@ -209,6 +286,19 @@ namespace note__
             {
                 rtb.SelectedText = Clipboard.GetData(DataFormats.Text).ToString();
                 //MessageBox.Show(Clipboard.GetData(DataFormats.Text).ToString());
+            }
+            catch
+            {
+                return;
+            }
+        }
+        private void CutSelected(object sender, EventArgs e)
+        {
+            var rtb = tabControl1.SelectedTab.Controls.Find("rtb", true)[0] as RichTextBox;
+            try
+            {
+                Clipboard.SetText(rtb.SelectedText);
+                rtb.SelectedText = "";
             }
             catch
             {

@@ -144,6 +144,7 @@
             this.formatButton.Size = new System.Drawing.Size(192, 22);
             this.formatButton.Text = "Format File";
             this.formatButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.formatButton.Click += new System.EventHandler(this.FormatCurrentFile);
             // 
             // undoButton
             // 
