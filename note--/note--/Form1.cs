@@ -15,13 +15,14 @@ namespace note__
     {
         private List<CachedFile> cachedFiles = new List<CachedFile>();
         private List<TabPage> pages = new List<TabPage>();
-        private Designer designer;
+        private Designer _designer;
+        private string _buffer = "";
         
         public Form1()
         {
             InitializeComponent();
-            designer = new Designer(this);
-            designer.ActivateCurrent();
+            _designer = new Designer(this);
+            _designer.ActivateCurrent();
         }
 
         private void UndoButtonClick(object sender, EventArgs e)
@@ -29,8 +30,8 @@ namespace note__
             TabPage selectedTab = this.tabControl1.SelectedTab;
             var cached = cachedFiles.Find(x => x.FullPath == selectedTab.Text || selectedTab.Text == x.TempName);
             var rtb = (selectedTab.Controls.Find("rtb", true)[0] as RichTextBox);
-            string text = rtb.Text;
-            rtb.Text = cached.Undo();
+            string text = rtb.Rtf; 
+            rtb.Rtf = cached.Undo();
             rtb.SelectionStart = rtb.Text.Length;
         }
 
@@ -39,8 +40,8 @@ namespace note__
             TabPage selectedTab = this.tabControl1.SelectedTab;
             var cached = cachedFiles.Find(x => x.FullPath == selectedTab.Text || selectedTab.Text == x.TempName);
             var rtb = (selectedTab.Controls.Find("rtb", true)[0] as RichTextBox);
-            string text = rtb.Text;
-            rtb.Text = cached.Redo();
+            string text = rtb.Rtf;
+            rtb.Rtf = cached.Redo();
             rtb.SelectionStart = rtb.Text.Length;
         }
 
@@ -58,17 +59,17 @@ namespace note__
                 TabPage selectedTab = this.tabControl1.SelectedTab;
                 var cached = cachedFiles.Find(x => x.FullPath == selectedTab.Text || selectedTab.Text == x.TempName);
                 var rtb = sender as RichTextBox;
-                string text = rtb.Text;
+                string text = rtb.Rtf;
                 cached.SaveChange(text);
             }
         }
         private void BwClick(object sender, EventArgs e)
         {
-            designer.BlackAndWhiteScheme();
+            _designer.BlackAndWhiteScheme();
         }
         private void WbClick(object sender, EventArgs e)
         {
-            designer.WhiteAndBlackScheme();
+            _designer.WhiteAndBlackScheme();
         }
         private void SaveChanges(object sender, EventArgs e)
         {
@@ -95,7 +96,7 @@ namespace note__
             tp.Controls.Add(rtb);
 
             tabControl1.SelectedTab = tp;
-            designer.ActivateCurrent();
+            _designer.ActivateCurrent();
 
         }
         private void CloseButtonClick(object sender, EventArgs e)
@@ -132,21 +133,117 @@ namespace note__
         {
             RichTextBox rtb = new RichTextBox();
             rtb.Name = "rtb";
-            rtb.Text = text;
+            rtb.Text =  text;
             rtb.BackColor = Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             rtb.ForeColor = Color.White;
             rtb.BorderStyle = BorderStyle.None;
             rtb.Dock = DockStyle.Fill;
             rtb.Margin = new Padding(10, 0, 0, 0);
             rtb.Font = new Font(rtb.Font.Name, 13.0F, rtb.Font.Style, rtb.Font.Unit);
+            //rtb.ShortcutsEnabled = false;
             rtb.KeyUp += new KeyEventHandler(Kdown);
+            ContextMenuStrip cms = new ContextMenuStrip();
+            ToolStripMenuItem copyItem = new ToolStripMenuItem("Copy");
+            copyItem.Click += new EventHandler(CopySelected);
+            //copyItem.ShortcutKeys = (Keys.Control | Keys.C);
+            ToolStripMenuItem cutItem = new ToolStripMenuItem("Cut");
+            ToolStripMenuItem pasteItem = new ToolStripMenuItem("Paste");
+            //pasteItem.ShortcutKeys = (Keys.Control | Keys.V);
+            pasteItem.Click += new EventHandler(Paste);
+            ToolStripMenuItem selectAllItem = new ToolStripMenuItem("Select All");
+            List<ToolStripMenuItem> temp = (new[] { copyItem, pasteItem, cutItem, selectAllItem, }).ToList();
+            temp.ForEach(x => x.DisplayStyle = ToolStripItemDisplayStyle.Text);
+            cms.Items.AddRange(temp.ToArray());
+            rtb.ContextMenuStrip = cms;
             return rtb;
+        }
+        private RichTextBox RtbByPath(string path)
+        {
+            RichTextBox rtb = new RichTextBox();
+            rtb.Name = "rtb";
+            rtb.LoadFile(path);
+            rtb.BackColor = Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            //rtb.ForeColor = Color.White;
+            rtb.BorderStyle = BorderStyle.None;
+            rtb.Dock = DockStyle.Fill;
+            rtb.Margin = new Padding(10, 0, 0, 0);
+            //rtb.Font = new Font(rtb.Font.Name, 13.0F, rtb.Font.Style, rtb.Font.Unit);
+            rtb.ShortcutsEnabled = false;
+            rtb.KeyUp += new KeyEventHandler(Kdown);
+            ContextMenuStrip cms = new ContextMenuStrip();
+            ToolStripMenuItem copyItem = new ToolStripMenuItem("Copy");
+            copyItem.Click += new EventHandler(CopySelected);
+            copyItem.ShortcutKeys = (Keys.Control | Keys.C);
+            ToolStripMenuItem cutItem = new ToolStripMenuItem("Cut");
+            ToolStripMenuItem pasteItem = new ToolStripMenuItem("Paste");
+            pasteItem.ShortcutKeys = (Keys.Control | Keys.V);
+            pasteItem.Click += new EventHandler(Paste);
+            ToolStripMenuItem selectAllItem = new ToolStripMenuItem("Select All");
+            List<ToolStripMenuItem> temp = (new[] { copyItem, pasteItem, cutItem, selectAllItem, }).ToList();
+            temp.ForEach(x => x.DisplayStyle = ToolStripItemDisplayStyle.Text);
+            cms.Items.AddRange(temp.ToArray());
+            rtb.ContextMenuStrip = cms;
+            return rtb;
+            
+        }
+        
+
+        private void CopySelected(object sender, EventArgs e)
+        {
+            try
+            {
+                var rtb = tabControl1.SelectedTab.Controls.Find("rtb", true)[0] as RichTextBox;
+                Clipboard.SetText(rtb.SelectedText);
+            }
+            catch
+            {
+                return;
+            }
+           // MessageBox.Show(Clipboard.GetData(DataFormats.Rtf).ToString());
+        }
+
+        private void Paste(object sender, EventArgs e)
+        {
+            var rtb = tabControl1.SelectedTab.Controls.Find("rtb", true)[0] as RichTextBox;
+            try
+            {
+                rtb.SelectedText = Clipboard.GetData(DataFormats.Text).ToString();
+                //MessageBox.Show(Clipboard.GetData(DataFormats.Text).ToString());
+            }
+            catch
+            {
+                return;
+            }
         }
         private void OpenFileByPath(string fullpath)
         {
+            if (cachedFiles.Select(x => x.FullPath).Contains(fullpath))
+            {
+                foreach(TabPage t in tabControl1.TabPages)
+                {
+                    if (t.Text == fullpath)
+                    {
+                        tabControl1.SelectedTab = t;
+                        return;
+                    }
+                }
+            }
             TabPage tp = new TabPage();
             CachedFile cachedFile = new CachedFile(fullpath);
-            var rtb = RtbByText(cachedFile.Text);
+            string ext = Path.GetExtension(fullpath);
+            RichTextBox rtb;
+            if (ext == ".rtf")
+            {
+                rtb = RtbByPath(fullpath);
+            }
+            else if(ext == ".txt")
+            {
+                rtb = RtbByText(File.ReadAllText(fullpath));
+            }
+            else
+            {
+                return;
+            }
             tp.Controls.Add(rtb);
             tabControl1.TabPages.Add(tp);
             
@@ -159,24 +256,21 @@ namespace note__
             tp.Text = cachedFile.FullPath;
 
             tabControl1.SelectedTab = tp;
-            designer.ActivateCurrent();
+            _designer.ActivateCurrent();
         }
         private void OpenButtonClick(object sender, EventArgs e)
         {
+
             
-            try
-            {
                 if (openFileDialog1.ShowDialog() == DialogResult.OK)
                 {
                     string fullpath = openFileDialog1.FileName;
                     OpenFileByPath(fullpath);
                 }
-            }
-            catch
-            {
-                MessageBox.Show("Непредвиденная ошибка во время открытия файла.");
-            }
             
+            
+
+
         }
         private void SaveAsButtonClick(object sender, EventArgs e)
         {
@@ -198,26 +292,29 @@ namespace note__
                         if (Path.GetExtension(dialog.FileName) == ".txt")
                         {
                             text = (selectedTab.Controls.Find("rtb", true)[0] as RichTextBox).Text;
+                            //MessageBox.Show(text);
+                            File.WriteAllText(dialog.FileName, text);
                         }
                         else
                         {
                             var rb = (selectedTab.Controls.Find("rtb", true)[0] as RichTextBox);
-                            rb.ForeColor = Color.Black;
-                            text = rb.Rtf;
-                            rb.ForeColor = Color.White;
+                            //rb.ForeColor = Color.Black;
+                            rb.SaveFile(dialog.FileName);
+                            //rb.ForeColor = Color.White;
                         }
 
-                        File.WriteAllText(dialog.FileName, text);
+                        
                         tabControl1.TabPages.Remove(selectedTab);
                         cachedFiles.Remove(cached);
                         OpenFileByPath(dialog.FileName);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    MessageBox.Show("Непредвиденная ошибка во время сохранения файла.");
+                    MessageBox.Show("Непредвиденная ошибка во время сохранения файла." + ex.Message);
                 }
             }
         }
+
     }
 }

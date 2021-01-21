@@ -68,10 +68,22 @@ namespace note__
                             {
                                 (r as RichTextBox).BackColor = DarkGray;
                                 (r as RichTextBox).ForeColor = White;
+                                var cms = (r as RichTextBox).ContextMenuStrip;
+                                cms.BackColor = SpaceGray;
+                                cms.ForeColor = SpaceGray;
+                                foreach (var i in cms.Items)
+                                {
+                                    if (i is ToolStripMenuItem)
+                                    {
+                                        (i as ToolStripMenuItem).BackColor = SpaceGray;
+                                        (i as ToolStripMenuItem).ForeColor = White;
+                                    }
+                                }
                             }
                         }
                     }
                 }
+                
 
             }
             form.Refresh();
@@ -125,6 +137,17 @@ namespace note__
                                 (r as RichTextBox).BackColor = LightGray;
                                 (r as RichTextBox).ForeColor = DarkGray;
                             }
+                            var cms = (r as RichTextBox).ContextMenuStrip;
+                            cms.BackColor = White;
+                            cms.ForeColor = DarkGray;
+                            foreach (var i in cms.Items)
+                            {
+                                if (i is ToolStripMenuItem)
+                                {
+                                    (i as ToolStripMenuItem).BackColor = White;
+                                    (i as ToolStripMenuItem).ForeColor = DarkGray;
+                                }
+                            }
                         }
                     }
                 }
@@ -152,7 +175,7 @@ namespace note__
         public Designer(Form1 form)
         {
             this.form = form;
-            ColorScheme = CScheme.BW;
+            ColorScheme = CScheme.WB;
         }
     }
 }

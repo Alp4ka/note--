@@ -66,6 +66,7 @@
             // 
             // FileButton
             // 
+            this.FileButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.FileButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.createButton,
             this.openButton,
@@ -123,6 +124,7 @@
             // 
             // EditButton
             // 
+            this.EditButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.EditButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.formatButton,
             this.undoButton,
@@ -168,6 +170,7 @@
             // 
             // HelpButton
             // 
+            this.HelpButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.HelpButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.HelpButton.ForeColor = System.Drawing.Color.White;
             this.HelpButton.Name = "HelpButton";
@@ -178,6 +181,7 @@
             // settingButton
             // 
             this.settingButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
+            this.settingButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.settingButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.colorTrigger});
             this.settingButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
@@ -223,15 +227,13 @@
             // 
             // tabControl1
             // 
-            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tabControl1.Location = new System.Drawing.Point(0, 27);
+            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl1.Location = new System.Drawing.Point(0, 25);
             this.tabControl1.Margin = new System.Windows.Forms.Padding(0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.Padding = new System.Drawing.Point(0, 0);
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(800, 423);
+            this.tabControl1.Size = new System.Drawing.Size(800, 425);
             this.tabControl1.TabIndex = 1;
             // 
             // openFileDialog1

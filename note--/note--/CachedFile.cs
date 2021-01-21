@@ -15,7 +15,6 @@ namespace note__
         private string _text;
         private string _tempName;
         private string _path;
-        private bool _saved = false;
         List<string> memory = Enumerable.Repeat("", _buffSize).ToList();
         private int _currentIndex = -1;
         private int _maxIndex = -1;
