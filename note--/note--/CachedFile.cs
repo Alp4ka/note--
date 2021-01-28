@@ -9,7 +9,7 @@ namespace note__
 {
     class CachedFile
     {
-        private const int _buffSize = 20;
+        private const int _buffSize = 30;
         private readonly string _baseName = "New File";
         private string _extension;
         private string _text;
@@ -105,8 +105,8 @@ namespace note__
         public string Extension { get => _extension; set { _extension = value; } }
         public string TempName { get => _tempName; set { _tempName= value; } }
         public string FullName { get => _tempName + _extension; }
-        public string FullPath { 
-            get => _path != null? _path : null; 
+        public string FullPath {
+            get => _path;
             set {
                 _path = value;
             } 

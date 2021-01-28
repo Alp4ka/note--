@@ -17,7 +17,7 @@ namespace note__
         private List<TabPage> pages = new List<TabPage>();
         private Designer _designer;
         private string _buffer = "";
-        
+
         public Form1()
         {
             InitializeComponent();
@@ -25,29 +25,150 @@ namespace note__
             _designer.ActivateCurrent();
         }
 
-        private void UndoButtonClick(object sender, EventArgs e)
+        public void ToggleFont(object sender, EventArgs e)
         {
             TabPage selectedTab = this.tabControl1.SelectedTab;
+            if (selectedTab == null)
+            {
+                return;
+            }
             var cached = cachedFiles.Find(x => x.FullPath == selectedTab.Text || selectedTab.Text == x.TempName);
-            var rtb = (selectedTab.Controls.Find("rtb", true)[0] as RichTextBox);
-            string text = rtb.Rtf; 
+            var rtb = GetRtbInTab(selectedTab);
+            Font font = rtb.SelectionFont;
+            FontStyle fontStyle;
+            FontStyle temp;
+            switch ((sender as ToolStripMenuItem).Text)
+            {
+                case "B":
+                    temp = FontStyle.Bold;
+                    break;
+                case "I":
+                    temp = FontStyle.Italic;
+                    break;
+                case "U":
+                    temp = FontStyle.Underline;
+                    break;
+                case "S":
+                    temp = FontStyle.Strikeout;
+                    break;
+                default:
+                    return;
+            }
+
+                
+            if ((rtb.SelectionFont.Bold && temp == FontStyle.Bold) || 
+                (rtb.SelectionFont.Italic && temp == FontStyle.Italic) || 
+                (rtb.SelectionFont.Underline && temp == FontStyle.Underline ) || 
+                (rtb.SelectionFont.Strikeout && temp == FontStyle.Strikeout))
+            {
+
+                fontStyle = FontStyle.Regular;
+            }
+            else
+            {
+                fontStyle = temp;
+            }
+            rtb.SelectionFont = new Font(font.FontFamily,font.Size, fontStyle);
+        }
+
+
+        private void UndoButtonClick(object sender, EventArgs e)
+        {
+
+            TabPage selectedTab = this.tabControl1.SelectedTab;
+            if(selectedTab == null)
+            {
+                MessageBox.Show(
+                $"There is nothing to undo.",
+                "Error!",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error,
+                MessageBoxDefaultButton.Button1);
+                return;
+            }
+            var cached = cachedFiles.Find(x => x.FullPath == selectedTab.Text || selectedTab.Text == x.TempName);
+            var rtb = GetRtbInTab(selectedTab);
+            if (rtb == null)
+            {
+                MessageBox.Show(
+                $"There is nothing to undo.",
+                "Error!",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error,
+                MessageBoxDefaultButton.Button1);
+                return;
+            }
+            //string text = rtb.Rtf;
             rtb.Rtf = cached.Undo();
             rtb.SelectionStart = rtb.Text.Length;
+
         }
 
         private void RedoButtonClick(object sender, EventArgs e)
         {
             TabPage selectedTab = this.tabControl1.SelectedTab;
+            if(selectedTab == null)
+            {
+                MessageBox.Show(
+                $"There is nothing to redo.",
+                "Error!",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error,
+                MessageBoxDefaultButton.Button1);
+                return;
+            }
             var cached = cachedFiles.Find(x => x.FullPath == selectedTab.Text || selectedTab.Text == x.TempName);
-            var rtb = (selectedTab.Controls.Find("rtb", true)[0] as RichTextBox);
+            var rtb = GetRtbInTab(selectedTab);
+            if (rtb == null)
+            {
+                MessageBox.Show(
+                $"There is nothing to redo.",
+                "Error!",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error,
+                MessageBoxDefaultButton.Button1);
+                return;
+            }
             string text = rtb.Rtf;
             rtb.Rtf = cached.Redo();
             rtb.SelectionStart = rtb.Text.Length;
         }
+        private RichTextBox GetRtbInTab(TabPage tp)
+        {
+            if (tp.Controls.Find("rtb", true).Length > 0)
+            {
+                return tp.Controls.Find("rtb", true)[0] as RichTextBox;
+            }
+            else
+            {
+                return null;
+            }
+        }
         private void FormatCurrentFile(object sender, EventArgs e)
         {
             TabPage selectedTab = this.tabControl1.SelectedTab;
-            var rtb = (selectedTab.Controls.Find("rtb", true)[0] as RichTextBox);
+            if(selectedTab == null)
+            {
+                MessageBox.Show(
+                $"There is nothing to edit.",
+                "Error!",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error,
+                MessageBoxDefaultButton.Button1);
+                return;
+            }
+            RichTextBox rtb = new RichTextBox();
+            rtb = GetRtbInTab(selectedTab);
+            if (rtb == null)
+            {
+                MessageBox.Show(
+                $"There is nothing to edit.",
+                "Error!",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error,
+                MessageBoxDefaultButton.Button1);
+                return;
+            }
             string text = rtb.Text;
             text = text.Replace("{", "\n{\n");
             text = text.Replace("}", "\n}\n");
@@ -82,7 +203,7 @@ namespace note__
                 else if()
             }
             MessageBox.Show(text);*/
-            for(int i =0; i < textArray.Length; ++i)
+            for (int i = 0; i < textArray.Length; ++i)
             {
                 if (!String.IsNullOrWhiteSpace(textArray[i].Trim()))
                 {
@@ -90,32 +211,41 @@ namespace note__
                 }
             }
             int tabCnter = 0;
-            for(int i = 0; i < newStringArray.Count; ++i)
+            for (int i = 0; i < newStringArray.Count; ++i)
             {
                 if (newStringArray[i].Contains('}'))
                 {
                     tabCnter = Utils.ReturnEdged(0, 100, tabCnter - 1);
                 }
                 newStringArray[i] = new String(' ', 4 * tabCnter) + newStringArray[i].TrimStart();
-                if(newStringArray[i].Contains('{'))
+                if (newStringArray[i].Contains('{'))
                 {
-                    tabCnter = Utils.ReturnEdged(0, 100, tabCnter+1);
+                    tabCnter = Utils.ReturnEdged(0, 100, tabCnter + 1);
                 }
-                
+
             }
             text = String.Join("\n", newStringArray);
             rtb.Text = text;
+            Kdown(rtb, null);
+        }
+        private void SaveAll(object sender, EventArgs e)
+        {
+            foreach(TabPage tab in tabControl1.TabPages)
+            {
+                tabControl1.SelectedTab = tab;
+                SaveAsButtonClick(null ,null);
+            }
         }
         private void Kdown(object sender, KeyEventArgs e)
         {
-            if(e!= null)
+            if (e != null)
             {
                 if ((e.Control && e.KeyCode == Keys.Z) || (e.Control && e.Shift && e.KeyCode == Keys.Z))
                 {
                 }
             }
-            
-            if ( e == null || e.KeyCode == Keys.Space || e.KeyCode == Keys.Enter || e.KeyCode == Keys.Tab)
+
+            if (e == null || e.KeyCode == Keys.Space || e.KeyCode == Keys.Enter || e.KeyCode == Keys.Tab)
             {
                 TabPage selectedTab = this.tabControl1.SelectedTab;
                 var cached = cachedFiles.Find(x => x.FullPath == selectedTab.Text || selectedTab.Text == x.TempName);
@@ -132,15 +262,7 @@ namespace note__
         {
             _designer.WhiteAndBlackScheme();
         }
-        private void SaveChanges(object sender, EventArgs e)
-        {
-                
-                TabPage selectedTab = this.tabControl1.SelectedTab;
-                var cached = cachedFiles.Find(x => x.FullPath == selectedTab.Text || selectedTab.Text == x.TempName);
-                var rtb = sender as RichTextBox;
-                string text = rtb.Text;
-                cached.SaveChange(text);
-        }
+
         private void CreateButtonClick(object sender, EventArgs e)
         {
             var tp = new TabPage();
@@ -148,7 +270,7 @@ namespace note__
             cachedFiles.Add(cachedFile);
             var rtb = RtbByText("");
             tabControl1.TabPages.Add(tp);
-            
+
 
             tp.BackColor = Color.FromArgb(42, 42, 42);
             tp.ForeColor = Color.FromArgb(42, 42, 42);
@@ -186,7 +308,7 @@ namespace note__
 
         private void ForceClose(TabPage selectedTab, CachedFile cf)
         {
-            
+
             tabControl1.TabPages.Remove(selectedTab);
             cachedFiles.Remove(cf);
         }
@@ -194,7 +316,7 @@ namespace note__
         {
             RichTextBox rtb = new RichTextBox();
             rtb.Name = "rtb";
-            rtb.Text =  text;
+            rtb.Text = text;
             rtb.BackColor = Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             rtb.ForeColor = Color.White;
             rtb.BorderStyle = BorderStyle.None;
@@ -247,7 +369,7 @@ namespace note__
             cms.Items.AddRange(temp.ToArray());
             rtb.ContextMenuStrip = cms;
             return rtb;
-            
+
         }
 
 
@@ -264,7 +386,7 @@ namespace note__
             }
             // MessageBox.Show(Clipboard.GetData(DataFormats.Rtf).ToString());
         }
-        
+
         private void SelectAllText(object sender, EventArgs e)
         {
             try
@@ -281,9 +403,10 @@ namespace note__
 
         private void Paste(object sender, EventArgs e)
         {
-            var rtb = tabControl1.SelectedTab.Controls.Find("rtb", true)[0] as RichTextBox;
+            
             try
             {
+                var rtb = tabControl1.SelectedTab.Controls.Find("rtb", true)[0] as RichTextBox;
                 rtb.SelectedText = Clipboard.GetData(DataFormats.Text).ToString();
                 //MessageBox.Show(Clipboard.GetData(DataFormats.Text).ToString());
             }
@@ -309,7 +432,7 @@ namespace note__
         {
             if (cachedFiles.Select(x => x.FullPath).Contains(fullpath))
             {
-                foreach(TabPage t in tabControl1.TabPages)
+                foreach (TabPage t in tabControl1.TabPages)
                 {
                     if (t.Text == fullpath)
                     {
@@ -326,7 +449,7 @@ namespace note__
             {
                 rtb = RtbByPath(fullpath);
             }
-            else if(ext == ".txt")
+            else if (ext == ".txt")
             {
                 rtb = RtbByText(File.ReadAllText(fullpath));
             }
@@ -336,7 +459,7 @@ namespace note__
             }
             tp.Controls.Add(rtb);
             tabControl1.TabPages.Add(tp);
-            
+
 
             cachedFiles.Add(cachedFile);
 
@@ -351,14 +474,14 @@ namespace note__
         private void OpenButtonClick(object sender, EventArgs e)
         {
 
-            
-                if (openFileDialog1.ShowDialog() == DialogResult.OK)
-                {
-                    string fullpath = openFileDialog1.FileName;
-                    OpenFileByPath(fullpath);
-                }
-            
-            
+
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                string fullpath = openFileDialog1.FileName;
+                OpenFileByPath(fullpath);
+            }
+
+
 
 
         }
@@ -393,7 +516,7 @@ namespace note__
                             //rb.ForeColor = Color.White;
                         }
 
-                        
+
                         tabControl1.TabPages.Remove(selectedTab);
                         cachedFiles.Remove(cached);
                         OpenFileByPath(dialog.FileName);
@@ -405,6 +528,5 @@ namespace note__
                 }
             }
         }
-
     }
 }
