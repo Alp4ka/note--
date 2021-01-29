@@ -21,6 +21,17 @@ namespace note__
             BW = 1,
             WB = 2
         }
+        public Color FontColorDependOnScheme()
+        {
+            if(ColorScheme == CScheme.BW)
+            {
+                return Color.White;
+            }
+            else
+            {
+                return DarkGray;
+            }
+        }
         public  void BlackAndWhiteScheme()
         {
             form.BackColor = SpaceGray;
@@ -66,7 +77,7 @@ namespace note__
                         {
                             if(r is RichTextBox)
                             {
-                                (r as RichTextBox).BackColor = DarkGray;
+                                (r as RichTextBox).BackColor = SpaceGray;
                                 (r as RichTextBox).ForeColor = White;
                                 var cms = (r as RichTextBox).ContextMenuStrip;
                                 cms.BackColor = SpaceGray;
@@ -83,7 +94,11 @@ namespace note__
                         }
                     }
                 }
-                
+                else if(control is RichTextBox)
+                {
+                    (control as RichTextBox).BackColor = DarkGray;
+                    (control as RichTextBox).ForeColor = White;
+                }
 
             }
             form.Refresh();
@@ -151,7 +166,11 @@ namespace note__
                         }
                     }
                 }
-
+                else if(control is RichTextBox)
+                {
+                    (control as RichTextBox).BackColor = White;
+                    (control as RichTextBox).ForeColor = DarkGray;
+                }
             }
             form.Refresh();
             form.Update();

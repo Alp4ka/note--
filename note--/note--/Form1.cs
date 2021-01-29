@@ -14,15 +14,242 @@ namespace note__
     public partial class Form1 : Form
     {
         private List<CachedFile> cachedFiles = new List<CachedFile>();
-        private List<TabPage> pages = new List<TabPage>();
+        private List<TabPage> _pages = new List<TabPage>();
         private Designer _designer;
         private string _buffer = "";
-
+        private Timer _autoSave;
+        private int _delay = 30000;
         public Form1()
         {
             InitializeComponent();
+
             _designer = new Designer(this);
             _designer.ActivateCurrent();
+
+            _autoSave = new Timer();
+            _autoSave.Tick += new EventHandler(TimerEventProcessor);
+            _autoSave.Interval = _delay;
+            _autoSave.Start();
+        }
+        private void ToggleOutline(object sender, EventArgs myEventArgs)
+        {
+            if((sender as ToolStripMenuItem).Checked)
+            {
+                (sender as ToolStripMenuItem).Checked = false;
+            }
+            else
+            {
+                    DrawOutline(true);
+
+                (sender as ToolStripMenuItem).Checked = true;
+            }
+        }
+
+        //TODO
+        /*
+         * sfsfsdsfs */
+        private void DrawOutline(bool state)
+        {
+            TabPage selectedTab = tabControl1.SelectedTab;
+            if (selectedTab == null)
+            {
+                return;
+            }
+            var cached = cachedFiles.Find(x => x.FullPath == selectedTab.Text || selectedTab.Text == x.TempName);
+            var rtb = GetRtbInTab(selectedTab);
+            var cursorPosition = rtb.SelectionStart;
+            rtb.SelectionStart = 0;
+            rtb.SelectionLength = rtb.Text.Length;
+            rtb.SelectionColor = _designer.FontColorDependOnScheme();
+            //Regex regex = new Regex(@"\.{1}[^\d]*");
+            if (state)
+            {
+                rtb.SuspendLayout();
+                string text = rtb.Text;
+                //text = text.Replace("{", " ").Replace("}", " ").Replace(")", " ").Replace("(", " ").Replace("*", " ").Replace("?", " ").Replace(".", " ").Replace("%", " ").Replace("$", " ").Replace("-", " ").Replace("+", " ") + " ";
+                List<Color> colors = new List<Color>(new Color[] {Color.Blue, Color.Magenta, Color.Green});
+                List<string[]> serviceWords = new List<string[]>();
+                serviceWords.Add(Utils.blueWords);
+                serviceWords.Add(Utils.magentaWords);
+                serviceWords.Add(Utils.greenWords);
+                for (int i = 0; i < serviceWords.Count(); ++i)
+                {
+                    foreach (string word in serviceWords[i])
+                    {
+                        int start = 0;
+                        int startTemp = 0;
+                        while (true)
+                        {
+                            try
+                            {
+                                start = text.IndexOf(word, startTemp);
+                            }
+                            catch (Exception ex)
+                            {
+                                break;
+                            }
+                            if (start != -1)
+                            {
+                                rtb.SelectionStart = start;
+                                rtb.SelectionLength = word.Length;
+                                rtb.SelectionColor = colors[i]; ;
+                                startTemp += word.Length;
+                                if (startTemp >= text.Length)
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+
+                }
+
+                int tempStart = 0;
+                //strings
+                while (true)
+                {
+                    if(tempStart >= text.Length)
+                    {
+                        break;
+                    }
+                    var indexStart = text.IndexOf('"', tempStart);
+                    if(indexStart == -1)
+                    {
+                        break;
+                    }
+                    var indexEnd = -1;
+                    if(indexStart + 1 >= text.Length)
+                    {
+                        indexEnd = text.Length;
+                    }
+                    else
+                    {
+                        indexEnd = text.IndexOf('"', indexStart + 1);
+                    }
+                    if(indexEnd == -1)
+                    {
+                        indexEnd = text.Length;
+                        rtb.SelectionStart = indexStart;
+                        rtb.SelectionLength = indexEnd - indexStart+1;
+                        rtb.SelectionColor = Color.Coral;
+                        break;
+                    }
+                    rtb.SelectionStart = indexStart;
+                    rtb.SelectionLength = indexEnd - indexStart+1;
+                    rtb.SelectionColor = Color.Coral;
+                    tempStart = indexEnd+1;
+                }
+                tempStart = 0;
+                while (true)
+                {
+                    if (tempStart >= text.Length)
+                    {
+                        break;
+                    }
+                    int indexStart = text.IndexOf("//", tempStart);
+                    int indexEnd = -1;
+                    if (indexStart == -1)
+                    {
+                        break;
+                    }
+                    indexEnd = text.IndexOf("\n", indexStart);
+                    if (indexEnd == -1)
+                    {
+
+                        indexEnd = text.Length;
+                        rtb.SelectionStart = indexStart;
+                        rtb.SelectionLength = indexEnd - indexStart + 1;
+                        rtb.SelectionColor = Color.Red;
+                        break;
+                    }
+                    rtb.SelectionStart = indexStart;
+                    rtb.SelectionLength = indexEnd - indexStart + 1;
+                    rtb.SelectionColor = Color.Red;
+                    tempStart = indexEnd + 1;
+                }
+
+                tempStart = 0;
+                while (true)
+                {
+                    if (tempStart >= text.Length)
+                    {
+                        break;
+                    }
+                    int indexStart = text.IndexOf("/*", tempStart);
+                    int indexEnd = -1;
+                    if (indexStart == -1)
+                    {
+                        break;
+                    }
+                    indexEnd = text.IndexOf("*/", indexStart);
+                    if (indexEnd == -1)
+                    {
+
+                        indexEnd = text.Length;
+                        rtb.SelectionStart = indexStart;
+                        rtb.SelectionLength = indexEnd - indexStart + 2;
+                        rtb.SelectionColor = Color.Red;
+                        break;
+                    }
+                    rtb.SelectionStart = indexStart;
+                    rtb.SelectionLength = indexEnd - indexStart + 2;
+                    rtb.SelectionColor = Color.Red;
+                    tempStart = indexEnd + 2;
+                }
+                rtb.SelectionStart = cursorPosition;
+                rtb.SelectionLength = 0;
+                rtb.ResumeLayout();
+            }
+        }
+        protected void TxtChanged(object sender, EventArgs e)
+        {
+            outlineButton.Checked = false;
+        }
+        private void TimerEventProcessor(object sender, EventArgs myEventArgs)
+        {
+            TabPage selectedTab = tabControl1.SelectedTab;
+            if (selectedTab == null)
+            {
+                return;
+            }
+            var cached = cachedFiles.Find(x => x.FullPath == selectedTab.Text || selectedTab.Text == x.TempName);
+            var rtb = GetRtbInTab(selectedTab);
+            if (cached.FullPath != null && File.Exists(cached.FullPath))
+            {
+                string text = "";
+                if(cached.Extension == ".txt")
+                {
+                    text = (selectedTab.Controls.Find("rtb", true)[0] as RichTextBox).Text;
+                    File.WriteAllText(cached.FullPath, text);
+                }
+                else
+                {
+                    var rb = (selectedTab.Controls.Find("rtb", true)[0] as RichTextBox);
+                    rb.SaveFile(cached.FullPath);
+                }
+            }
+            //_autoSave.Stop();
+            //_autoSave.Start();
+        }
+
+        
+        private void ToggleAutoSave(object sender, EventArgs e)
+        {
+
+
+            foreach(ToolStripMenuItem item in timerButton.DropDownItems)
+            {
+                item.Checked = false;
+            }
+            (sender as ToolStripMenuItem).Checked = true;
+            _delay = Utils.GetMsByName(sender as ToolStripMenuItem);
+            _autoSave.Stop();
+            _autoSave.Interval = _delay;
+            _autoSave.Start();
         }
 
         public void ToggleFont(object sender, EventArgs e)
@@ -284,8 +511,12 @@ namespace note__
         }
         private void CloseButtonClick(object sender, EventArgs e)
         {
-            TabPage selectedTab = this.tabControl1.SelectedTab;
+                TabPage selectedTab = this.tabControl1.SelectedTab;
             var cached = cachedFiles.Find(x => x.FullPath == selectedTab.Text || selectedTab.Text == x.TempName);
+            if (cached == null)
+            {
+                return;
+            }
             DialogResult result = MessageBox.Show(
                 $"Want to save changes on {cached.FullName}",
                 "Information",
@@ -295,7 +526,6 @@ namespace note__
 
             if (result == DialogResult.Yes)
                 SaveAsButtonClick(null, null);
-
             try
             {
                 ForceClose(selectedTab, cached);
@@ -325,6 +555,7 @@ namespace note__
             rtb.Font = new Font(rtb.Font.Name, 13.0F, rtb.Font.Style, rtb.Font.Unit);
             //rtb.ShortcutsEnabled = false;
             rtb.KeyUp += new KeyEventHandler(Kdown);
+            rtb.TextChanged += new EventHandler(TxtChanged);
             ContextMenuStrip cms = new ContextMenuStrip();
             ToolStripMenuItem copyItem = new ToolStripMenuItem("Copy");
             copyItem.Click += new EventHandler(CopySelected);
@@ -428,6 +659,7 @@ namespace note__
                 return;
             }
         }
+
         private void OpenFileByPath(string fullpath)
         {
             if (cachedFiles.Select(x => x.FullPath).Contains(fullpath))
@@ -463,8 +695,8 @@ namespace note__
 
             cachedFiles.Add(cachedFile);
 
-            tp.BackColor = Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            tp.ForeColor = Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            tp.BackColor = Color.FromArgb(42, 42, 42);
+            tp.ForeColor = Color.FromArgb(42, 42, 42);
             tp.UseVisualStyleBackColor = false;
             tp.Text = cachedFile.FullPath;
 
@@ -526,6 +758,25 @@ namespace note__
                 {
                     MessageBox.Show("Непредвиденная ошибка во время сохранения файла." + ex.Message);
                 }
+            }
+        }
+
+        private void CloseMethod(object sender, FormClosingEventArgs e)
+        {
+            DialogResult result = MessageBox.Show(
+                $"You sure want to exit?",
+                "Information",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Information,
+                MessageBoxDefaultButton.Button1);
+            if (result == DialogResult.Yes)
+            {
+                SaveAll(null, null);
+                e.Cancel = false;
+            }
+            else
+            {
+                e.Cancel = true;
             }
         }
     }

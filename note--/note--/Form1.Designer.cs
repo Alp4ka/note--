@@ -39,6 +39,8 @@
             this.formatButton = new System.Windows.Forms.ToolStripMenuItem();
             this.undoButton = new System.Windows.Forms.ToolStripMenuItem();
             this.redoButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.viewButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.outlineButton = new System.Windows.Forms.ToolStripMenuItem();
             this.HelpButton = new System.Windows.Forms.ToolStripMenuItem();
             this.settingButton = new System.Windows.Forms.ToolStripMenuItem();
             this.colorTrigger = new System.Windows.Forms.ToolStripMenuItem();
@@ -56,6 +58,7 @@
             this.underlineButton = new System.Windows.Forms.ToolStripMenuItem();
             this.italicButton = new System.Windows.Forms.ToolStripMenuItem();
             this.crossedButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.infoBox = new System.Windows.Forms.RichTextBox();
             this.menuStrip1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             this.SuspendLayout();
@@ -67,6 +70,7 @@
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.FileButton,
             this.EditButton,
+            this.viewButton,
             this.HelpButton,
             this.settingButton});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
@@ -193,6 +197,27 @@
             this.redoButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.redoButton.Click += new System.EventHandler(this.RedoButtonClick);
             // 
+            // viewButton
+            // 
+            this.viewButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.outlineButton});
+            this.viewButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.viewButton.ForeColor = System.Drawing.Color.White;
+            this.viewButton.Name = "viewButton";
+            this.viewButton.Size = new System.Drawing.Size(47, 21);
+            this.viewButton.Text = "View";
+            this.viewButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // outlineButton
+            // 
+            this.outlineButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.outlineButton.Name = "outlineButton";
+            this.outlineButton.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
+            this.outlineButton.Size = new System.Drawing.Size(195, 22);
+            this.outlineButton.Text = "Code Outline";
+            this.outlineButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.outlineButton.Click += new System.EventHandler(this.ToggleOutline);
+            // 
             // HelpButton
             // 
             this.HelpButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
@@ -267,11 +292,14 @@
             // thirtySecButton
             // 
             this.thirtySecButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.thirtySecButton.Checked = true;
+            this.thirtySecButton.CheckState = System.Windows.Forms.CheckState.Checked;
             this.thirtySecButton.ForeColor = System.Drawing.Color.White;
             this.thirtySecButton.Name = "thirtySecButton";
             this.thirtySecButton.Size = new System.Drawing.Size(143, 22);
             this.thirtySecButton.Text = "30 Seconds";
             this.thirtySecButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.thirtySecButton.Click += new System.EventHandler(this.ToggleAutoSave);
             // 
             // minuteButton
             // 
@@ -282,6 +310,7 @@
             this.minuteButton.Size = new System.Drawing.Size(143, 22);
             this.minuteButton.Text = "1 Minute";
             this.minuteButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.minuteButton.Click += new System.EventHandler(this.ToggleAutoSave);
             // 
             // fiveMinuteButton
             // 
@@ -292,6 +321,7 @@
             this.fiveMinuteButton.Size = new System.Drawing.Size(143, 22);
             this.fiveMinuteButton.Text = "5 Minutes";
             this.fiveMinuteButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.fiveMinuteButton.Click += new System.EventHandler(this.ToggleAutoSave);
             // 
             // tabControl1
             // 
@@ -303,7 +333,7 @@
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.Padding = new System.Drawing.Point(0, 0);
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(800, 397);
+            this.tabControl1.Size = new System.Drawing.Size(800, 302);
             this.tabControl1.TabIndex = 1;
             // 
             // openFileDialog1
@@ -360,18 +390,32 @@
             this.crossedButton.Text = "S";
             this.crossedButton.Click += new System.EventHandler(this.ToggleFont);
             // 
+            // infoBox
+            // 
+            this.infoBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.infoBox.Cursor = System.Windows.Forms.Cursors.Arrow;
+            this.infoBox.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.infoBox.Location = new System.Drawing.Point(0, 358);
+            this.infoBox.Name = "infoBox";
+            this.infoBox.ReadOnly = true;
+            this.infoBox.Size = new System.Drawing.Size(800, 92);
+            this.infoBox.TabIndex = 3;
+            this.infoBox.Text = "";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.infoBox);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.menuStrip2);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.Text = "Note--";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CloseMethod);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.menuStrip2.ResumeLayout(false);
@@ -411,6 +455,9 @@
         private System.Windows.Forms.ToolStripMenuItem underlineButton;
         private System.Windows.Forms.ToolStripMenuItem italicButton;
         private System.Windows.Forms.ToolStripMenuItem crossedButton;
+        private System.Windows.Forms.RichTextBox infoBox;
+        private System.Windows.Forms.ToolStripMenuItem viewButton;
+        private System.Windows.Forms.ToolStripMenuItem outlineButton;
     }
 }
 
