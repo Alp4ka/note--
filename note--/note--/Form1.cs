@@ -16,7 +16,6 @@ namespace note__
         private List<CachedFile> cachedFiles = new List<CachedFile>();
         private List<TabPage> _pages = new List<TabPage>();
         private Designer _designer;
-        private string _buffer = "";
         private Timer _autoSave;
         private int _delay = 30000;
         public Form1()
@@ -45,9 +44,7 @@ namespace note__
             }
         }
 
-        //TODO
-        /*
-         * sfsfsdsfs */
+
         private void DrawOutline(bool state)
         {
             TabPage selectedTab = tabControl1.SelectedTab;
@@ -61,12 +58,10 @@ namespace note__
             rtb.SelectionStart = 0;
             rtb.SelectionLength = rtb.Text.Length;
             rtb.SelectionColor = _designer.FontColorDependOnScheme();
-            //Regex regex = new Regex(@"\.{1}[^\d]*");
             if (state)
             {
                 rtb.SuspendLayout();
                 string text = rtb.Text;
-                //text = text.Replace("{", " ").Replace("}", " ").Replace(")", " ").Replace("(", " ").Replace("*", " ").Replace("?", " ").Replace(".", " ").Replace("%", " ").Replace("$", " ").Replace("-", " ").Replace("+", " ") + " ";
                 List<Color> colors = new List<Color>(new Color[] {Color.Blue, Color.Magenta, Color.Green});
                 List<string[]> serviceWords = new List<string[]>();
                 serviceWords.Add(Utils.blueWords);
@@ -221,15 +216,15 @@ namespace note__
             if (cached.FullPath != null && File.Exists(cached.FullPath))
             {
                 string text = "";
-                if(cached.Extension == ".txt")
-                {
-                    text = (selectedTab.Controls.Find("rtb", true)[0] as RichTextBox).Text;
-                    File.WriteAllText(cached.FullPath, text);
-                }
-                else
+                if(cached.Extension == ".rtf")
                 {
                     var rb = (selectedTab.Controls.Find("rtb", true)[0] as RichTextBox);
                     rb.SaveFile(cached.FullPath);
+                }
+                else
+                {
+                    text = (selectedTab.Controls.Find("rtb", true)[0] as RichTextBox).Text;
+                    File.WriteAllText(cached.FullPath, text);
                 }
             }
             //_autoSave.Stop();
@@ -681,13 +676,9 @@ namespace note__
             {
                 rtb = RtbByPath(fullpath);
             }
-            else if (ext == ".txt")
-            {
-                rtb = RtbByText(File.ReadAllText(fullpath));
-            }
             else
             {
-                return;
+                rtb = RtbByText(File.ReadAllText(fullpath));
             }
             tp.Controls.Add(rtb);
             tabControl1.TabPages.Add(tp);
@@ -778,6 +769,7 @@ namespace note__
             {
                 e.Cancel = true;
             }
+            File.WriteAllText();
         }
     }
 }

@@ -10,13 +10,13 @@ namespace note__
         public static string[] blueWords = {
             "bool", "byte", "sbyte", "short", "ushort", "int", "uint", "long", "ulong", "double", "float", "decimal",
             "string", "char", "void", "object", "typeof", "sizeof", "null", "true", "false",
-            "lock", "public", "private ", "internal ", "var",
+            "lock", "public", "private ", "internal ", "var", " get", " set",
             "protected", "static", "readonly", "sealed", "const", "fixed", "stackalloc", "volatile", "new", "override", "abstract", "virtual",
-            "event", "extern", "ref", "out", "is", "as", "params", "arglist", "makeref", "reftype", "refvalue", "this", "base",
+            "event", "extern", "ref", "out", " is ", " as ", "params", "arglist", "makeref", "reftype", "refvalue", "this", "base",
             "namespace", "using", "checked", "unchecked", "unsafe", "implicit", "explicit"
         };
         public static string[] magentaWords = { 
-            "try", "for", "in ", "case", "while", "if", "else", "foreach", "do", "switch", "throw ",
+            "try", "for", " in ", "case", "while", "if", "else", "foreach", " do", " switch", " throw ",
             "catch", "finally", "goto", "break;" , "default", "continue", "return"
         };
         public static string[] greenWords = { "class", "struct", "interface", "enum", "delegate", "operator", "-", "+", "=", "*", "&", "%", "/", "$", "|", "^"};
