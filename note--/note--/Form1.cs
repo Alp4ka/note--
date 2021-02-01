@@ -97,7 +97,7 @@ namespace note__
                             {
                                 start = text.IndexOf(word, startTemp);
                             }
-                            catch (Exception ex)
+                            catch 
                             {
                                 break;
                             }
@@ -430,19 +430,6 @@ namespace note__
 
             List<string> newStringArray = new List<string>();
 
-            /*for(int i =0; i < textArray.Length; ++i)
-            {
-                textArray[i] = textArray[i].Trim();
-                var indexL = textArray[i].IndexOf('{')
-                if (indexL != -1 && textArray[i].Length != 1)
-                {
-                    textArray[i].Replace("{", "\n{\n");
-                    newStringArray.Add(textArra)
-                }
-
-                else if()
-            }
-            MessageBox.Show(text);*/
             for (int i = 0; i < textArray.Length; ++i)
             {
                 if (!String.IsNullOrWhiteSpace(textArray[i].Trim()))
@@ -566,17 +553,14 @@ namespace note__
             rtb.Dock = DockStyle.Fill;
             rtb.Margin = new Padding(10, 0, 0, 0);
             rtb.Font = new Font(rtb.Font.Name, 13.0F, rtb.Font.Style, rtb.Font.Unit);
-            //rtb.ShortcutsEnabled = false;
             rtb.KeyUp += new KeyEventHandler(Kdown);
             rtb.TextChanged += new EventHandler(TxtChanged);
             ContextMenuStrip cms = new ContextMenuStrip();
             ToolStripMenuItem copyItem = new ToolStripMenuItem("Copy");
             copyItem.Click += new EventHandler(CopySelected);
-            //copyItem.ShortcutKeys = (Keys.Control | Keys.C);
             ToolStripMenuItem cutItem = new ToolStripMenuItem("Cut");
             cutItem.Click += new EventHandler(CutSelected);
             ToolStripMenuItem pasteItem = new ToolStripMenuItem("Paste");
-            //pasteItem.ShortcutKeys = (Keys.Control | Keys.V);
             pasteItem.Click += new EventHandler(Paste);
             ToolStripMenuItem selectAllItem = new ToolStripMenuItem("Select All");
             selectAllItem.Click += new EventHandler(SelectAllText);
@@ -592,11 +576,9 @@ namespace note__
             rtb.Name = "rtb";
             rtb.LoadFile(path);
             rtb.BackColor = Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            //rtb.ForeColor = Color.White;
             rtb.BorderStyle = BorderStyle.None;
             rtb.Dock = DockStyle.Fill;
             rtb.Margin = new Padding(10, 0, 0, 0);
-            //rtb.Font = new Font(rtb.Font.Name, 13.0F, rtb.Font.Style, rtb.Font.Unit);
             rtb.ShortcutsEnabled = false;
             rtb.KeyUp += new KeyEventHandler(Kdown);
             ContextMenuStrip cms = new ContextMenuStrip();
@@ -628,7 +610,6 @@ namespace note__
             {
                 return;
             }
-            // MessageBox.Show(Clipboard.GetData(DataFormats.Rtf).ToString());
         }
 
         private void SelectAllText(object sender, EventArgs e)
@@ -642,7 +623,6 @@ namespace note__
             {
                 return;
             }
-            // MessageBox.Show(Clipboard.GetData(DataFormats.Rtf).ToString());
         }
 
         private void Paste(object sender, EventArgs e)
@@ -652,7 +632,6 @@ namespace note__
             {
                 var rtb = tabControl1.SelectedTab.Controls.Find("rtb", true)[0] as RichTextBox;
                 rtb.SelectedText = Clipboard.GetData(DataFormats.Text).ToString();
-                //MessageBox.Show(Clipboard.GetData(DataFormats.Text).ToString());
             }
             catch
             {
@@ -746,15 +725,12 @@ namespace note__
                         if (Path.GetExtension(dialog.FileName) == ".txt")
                         {
                             text = (selectedTab.Controls.Find("rtb", true)[0] as RichTextBox).Text;
-                            //MessageBox.Show(text);
                             File.WriteAllText(dialog.FileName, text);
                         }
                         else
                         {
                             var rb = (selectedTab.Controls.Find("rtb", true)[0] as RichTextBox);
-                            //rb.ForeColor = Color.Black;
                             rb.SaveFile(dialog.FileName);
-                            //rb.ForeColor = Color.White;
                         }
 
 

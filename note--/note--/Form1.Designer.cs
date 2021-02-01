@@ -430,7 +430,7 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem FileButton;
         private System.Windows.Forms.ToolStripMenuItem EditButton;
-        private System.Windows.Forms.ToolStripMenuItem HelpButton;
+        new private System.Windows.Forms.ToolStripMenuItem HelpButton;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.ToolStripMenuItem createButton;
         private System.Windows.Forms.ToolStripMenuItem openButton;
