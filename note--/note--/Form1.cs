@@ -17,18 +17,36 @@ namespace note__
         private List<TabPage> _pages = new List<TabPage>();
         private Designer _designer;
         private Timer _autoSave;
-        private int _delay = 30000;
-        public Form1()
+        private int _delay = Utils.delays[0];
+        private Dictionary<int, ToolStripMenuItem> delayToTool = new Dictionary<int, ToolStripMenuItem>();
+        public Form1(string[] files = null, Designer.CScheme scheme = Designer.CScheme.WB, int delay = 30000)
         {
+            
             InitializeComponent();
+            delayToTool.Add(Utils.delays[0], thirtySecButton);
+            delayToTool.Add(Utils.delays[1], minuteButton);
+            delayToTool.Add(Utils.delays[2], fiveMinuteButton);
+            foreach (ToolStripMenuItem t in delayToTool[delay].Owner.Items)
+            {
+                t.Checked = false;
+            }
+            delayToTool[delay].Checked = true;
+            _delay = delay;
 
-            _designer = new Designer(this);
+            _designer = new Designer(this, scheme);
             _designer.ActivateCurrent();
 
             _autoSave = new Timer();
             _autoSave.Tick += new EventHandler(TimerEventProcessor);
             _autoSave.Interval = _delay;
             _autoSave.Start();
+            if (files != null)
+            {
+                foreach (string path in files)
+                {
+                    OpenFileByPath(path);
+                }
+            }
         }
         private void ToggleOutline(object sender, EventArgs myEventArgs)
         {
@@ -764,12 +782,31 @@ namespace note__
             {
                 SaveAll(null, null);
                 e.Cancel = false;
+                string schemeToSave = ((int)_designer.ColorScheme).ToString();
+                string delayAsString = _delay.ToString();
+                try
+                {
+                    File.WriteAllLines(Program.settingsPath, new string[] { schemeToSave , delayAsString});
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+                try
+                {
+                    File.WriteAllLines(Program.cachedPath, cachedFiles.Select(x => x.FullPath).ToArray());
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+
             }
             else
             {
                 e.Cancel = true;
             }
-            File.WriteAllText();
+            
         }
     }
 }

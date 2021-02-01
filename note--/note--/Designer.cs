@@ -191,10 +191,10 @@ namespace note__
                     return;
             }
         }
-        public Designer(Form1 form)
+        public Designer(Form1 form, CScheme scheme = CScheme.WB)
         {
             this.form = form;
-            ColorScheme = CScheme.WB;
+            ColorScheme = scheme;
         }
     }
 }

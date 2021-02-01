@@ -20,7 +20,7 @@ namespace note__
             "catch", "finally", "goto", "break;" , "default", "continue", "return"
         };
         public static string[] greenWords = { "class", "struct", "interface", "enum", "delegate", "operator", "-", "+", "=", "*", "&", "%", "/", "$", "|", "^"};
-
+        public static readonly int[] delays = {30000, 60000, 300000 };
         public static int ReturnEdged(int l, int r, int value)
         {
             if(value < l)
