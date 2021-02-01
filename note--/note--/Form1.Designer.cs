@@ -35,6 +35,8 @@
             this.saveAsButton = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAllButton = new System.Windows.Forms.ToolStripMenuItem();
             this.closeFileButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.compileButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.compilePathButton = new System.Windows.Forms.ToolStripMenuItem();
             this.EditButton = new System.Windows.Forms.ToolStripMenuItem();
             this.formatButton = new System.Windows.Forms.ToolStripMenuItem();
             this.undoButton = new System.Windows.Forms.ToolStripMenuItem();
@@ -87,7 +89,9 @@
             this.openButton,
             this.saveAsButton,
             this.saveAllButton,
-            this.closeFileButton});
+            this.closeFileButton,
+            this.compileButton,
+            this.compilePathButton});
             this.FileButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.FileButton.ForeColor = System.Drawing.Color.White;
             this.FileButton.Name = "FileButton";
@@ -101,7 +105,7 @@
             this.createButton.ForeColor = System.Drawing.Color.White;
             this.createButton.Name = "createButton";
             this.createButton.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-            this.createButton.Size = new System.Drawing.Size(206, 22);
+            this.createButton.Size = new System.Drawing.Size(218, 22);
             this.createButton.Text = "Create New";
             this.createButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.createButton.Click += new System.EventHandler(this.CreateButtonClick);
@@ -112,7 +116,7 @@
             this.openButton.ForeColor = System.Drawing.Color.White;
             this.openButton.Name = "openButton";
             this.openButton.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openButton.Size = new System.Drawing.Size(206, 22);
+            this.openButton.Size = new System.Drawing.Size(218, 22);
             this.openButton.Text = "Open";
             this.openButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.openButton.Click += new System.EventHandler(this.OpenButtonClick);
@@ -123,7 +127,7 @@
             this.saveAsButton.ForeColor = System.Drawing.Color.White;
             this.saveAsButton.Name = "saveAsButton";
             this.saveAsButton.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.saveAsButton.Size = new System.Drawing.Size(206, 22);
+            this.saveAsButton.Size = new System.Drawing.Size(218, 22);
             this.saveAsButton.Text = "Save As";
             this.saveAsButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.saveAsButton.Click += new System.EventHandler(this.SaveAsButtonClick);
@@ -135,7 +139,7 @@
             this.saveAllButton.Name = "saveAllButton";
             this.saveAllButton.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.S)));
-            this.saveAllButton.Size = new System.Drawing.Size(206, 22);
+            this.saveAllButton.Size = new System.Drawing.Size(218, 22);
             this.saveAllButton.Text = "Save All";
             this.saveAllButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.saveAllButton.Click += new System.EventHandler(this.SaveAll);
@@ -145,10 +149,27 @@
             this.closeFileButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.closeFileButton.ForeColor = System.Drawing.Color.White;
             this.closeFileButton.Name = "closeFileButton";
-            this.closeFileButton.Size = new System.Drawing.Size(206, 22);
+            this.closeFileButton.Size = new System.Drawing.Size(218, 22);
             this.closeFileButton.Text = "Close File";
             this.closeFileButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.closeFileButton.Click += new System.EventHandler(this.CloseButtonClick);
+            // 
+            // compileButton
+            // 
+            this.compileButton.Name = "compileButton";
+            this.compileButton.ShortcutKeys = System.Windows.Forms.Keys.F5;
+            this.compileButton.Size = new System.Drawing.Size(218, 22);
+            this.compileButton.Text = "Compile As C# Code";
+            this.compileButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.compileButton.Click += new System.EventHandler(this.CompileAsCs);
+            // 
+            // compilePathButton
+            // 
+            this.compilePathButton.Name = "compilePathButton";
+            this.compilePathButton.Size = new System.Drawing.Size(218, 22);
+            this.compilePathButton.Text = "Set Compiler";
+            this.compilePathButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.compilePathButton.Click += new System.EventHandler(this.SetCompiler);
             // 
             // EditButton
             // 
@@ -169,6 +190,7 @@
             this.formatButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.formatButton.ForeColor = System.Drawing.Color.White;
             this.formatButton.Name = "formatButton";
+            this.formatButton.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.K)));
             this.formatButton.Size = new System.Drawing.Size(192, 22);
             this.formatButton.Text = "Format File";
             this.formatButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -227,6 +249,7 @@
             this.HelpButton.Size = new System.Drawing.Size(47, 21);
             this.HelpButton.Text = "Help";
             this.HelpButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.HelpButton.Click += new System.EventHandler(this.GoToHelp);
             // 
             // settingButton
             // 
@@ -458,6 +481,8 @@
         private System.Windows.Forms.RichTextBox infoBox;
         private System.Windows.Forms.ToolStripMenuItem viewButton;
         private System.Windows.Forms.ToolStripMenuItem outlineButton;
+        private System.Windows.Forms.ToolStripMenuItem compileButton;
+        private System.Windows.Forms.ToolStripMenuItem compilePathButton;
     }
 }
 

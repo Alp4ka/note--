@@ -97,7 +97,7 @@ namespace note__
                 else if(control is RichTextBox)
                 {
                     (control as RichTextBox).BackColor = DarkGray;
-                    (control as RichTextBox).ForeColor = White;
+                    (control as RichTextBox).ForeColor = Color.Coral;
                 }
 
             }
@@ -169,7 +169,7 @@ namespace note__
                 else if(control is RichTextBox)
                 {
                     (control as RichTextBox).BackColor = White;
-                    (control as RichTextBox).ForeColor = DarkGray;
+                    (control as RichTextBox).ForeColor = Color.Coral;
                 }
             }
             form.Refresh();

@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Diagnostics;
+using System.Globalization;
 
 namespace note__
 {
@@ -17,6 +19,7 @@ namespace note__
         private List<TabPage> _pages = new List<TabPage>();
         private Designer _designer;
         private Timer _autoSave;
+        private string _compilerPath = @"C:\Windows\Microsoft.NET\Framework\v3.5\csc.exe";
         private int _delay = Utils.delays[0];
         private Dictionary<int, ToolStripMenuItem> delayToTool = new Dictionary<int, ToolStripMenuItem>();
         public Form1(string[] files = null, Designer.CScheme scheme = Designer.CScheme.WB, int delay = 30000)
@@ -47,6 +50,8 @@ namespace note__
                     OpenFileByPath(path);
                 }
             }
+
+            compilePathButton.Text = "Set Compiler " + _compilerPath;
         }
         private void ToggleOutline(object sender, EventArgs myEventArgs)
         {
@@ -217,6 +222,15 @@ namespace note__
                 rtb.SelectionLength = 0;
                 rtb.ResumeLayout();
             }
+        }
+        private void SetCompiler(object sender, EventArgs e)
+        {
+            var openFileDialog2 = new OpenFileDialog { Title = "Choose compiler", Filter = ".exe|*.exe" };
+            var res = openFileDialog2.ShowDialog();
+            if (res != DialogResult.OK)
+                return;
+            _compilerPath = openFileDialog2.FileName;
+            (sender as ToolStripMenuItem).Text = "Set Compiler " + _compilerPath;
         }
         protected void TxtChanged(object sender, EventArgs e)
         {
@@ -489,7 +503,20 @@ namespace note__
         {
             _designer.WhiteAndBlackScheme();
         }
-
+        private void GoToHelp(object sender, EventArgs e)
+        {
+            try
+            {
+                System.Diagnostics.Process myProcess = new System.Diagnostics.Process();
+                myProcess.StartInfo.UseShellExecute = true;
+                myProcess.StartInfo.FileName = "https://psv4.userapi.com/c505536/u240698365/docs/d15/c008955b8c6c/help.png?extra=Sjb0UCV2QFXoLZ8krXuk4n1Pbe952jmiyJb-h48DEJ1nR1D1_RYPyxlUFxbNxAImXRahnOOb2q_Zq74f9tx1MsjJ7j0OybPgjIchK_ejYDT2FDJehAMAxR8GuppWMwK4du0PmKbNS7eMj_aqI4kSm2fb";
+                myProcess.Start();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"It was supposed you 'll be able to open this site in broweser but something went wrong :C. \n\nInfo:\n {ex.Message}", "Ooops...");
+            }
+        }
         private void CreateButtonClick(object sender, EventArgs e)
         {
             var tp = new TabPage();
@@ -542,19 +569,8 @@ namespace note__
             tabControl1.TabPages.Remove(selectedTab);
             cachedFiles.Remove(cf);
         }
-        private RichTextBox RtbByText(string text)
+        private ContextMenuStrip CreateCms()
         {
-            RichTextBox rtb = new RichTextBox();
-            rtb.Name = "rtb";
-            rtb.Text = text;
-            rtb.BackColor = Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            rtb.ForeColor = Color.White;
-            rtb.BorderStyle = BorderStyle.None;
-            rtb.Dock = DockStyle.Fill;
-            rtb.Margin = new Padding(10, 0, 0, 0);
-            rtb.Font = new Font(rtb.Font.Name, 13.0F, rtb.Font.Style, rtb.Font.Unit);
-            rtb.KeyUp += new KeyEventHandler(Kdown);
-            rtb.TextChanged += new EventHandler(TxtChanged);
             ContextMenuStrip cms = new ContextMenuStrip();
             ToolStripMenuItem copyItem = new ToolStripMenuItem("Copy");
             copyItem.Click += new EventHandler(CopySelected);
@@ -567,6 +583,60 @@ namespace note__
             List<ToolStripMenuItem> temp = (new[] { copyItem, pasteItem, cutItem, selectAllItem, }).ToList();
             temp.ForEach(x => x.DisplayStyle = ToolStripItemDisplayStyle.Text);
             cms.Items.AddRange(temp.ToArray());
+            return cms;
+        }
+
+        private void CompileAsCs(object sender, EventArgs e)
+        {
+            try
+            {
+                var openFileDialog2 = new OpenFileDialog { Title = "Отрыть файл", Filter = ".cs|*.cs" };
+                var res = openFileDialog2.ShowDialog();
+                if (res != DialogResult.OK)
+                    return;
+                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                Process process = new Process
+                {
+                    StartInfo = new ProcessStartInfo()
+                    {
+                        StandardOutputEncoding = Encoding.GetEncoding(CultureInfo.CurrentCulture.TextInfo.OEMCodePage),
+                        FileName = _compilerPath,
+                        Arguments = @$"/t:exe /out:{Path.GetDirectoryName(openFileDialog2.FileName) + "\\temp_exec.exe"} {openFileDialog2.FileName}",
+                        RedirectStandardError = true,
+                        RedirectStandardOutput = true,
+                        RedirectStandardInput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    }
+                };
+                File.Create(Path.GetDirectoryName(openFileDialog2.FileName) + "\\temp_exec.exe").Close();
+                process.Start();
+                string output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
+                //MessageBox.Show(process.StandardOutput.ReadToEnd());
+                process.Close();
+                infoBox.Text = output;
+            }
+            catch
+            {
+                MessageBox.Show("Choose correct compiler. Maybe it's in C:/Windows/Microsoft.NET/Framework/v3.5/csc.exe", "Wrong Compiler");
+            }
+        }
+        private RichTextBox RtbByText(string text)
+        {
+            RichTextBox rtb = new RichTextBox();
+            rtb.Name = "rtb";
+            rtb.Text = text;
+            rtb.BackColor = Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            rtb.ForeColor = Color.White;
+            rtb.BorderStyle = BorderStyle.None;
+            rtb.Dock = DockStyle.Fill;
+            rtb.Margin = new Padding(10, 0, 0, 0);
+            rtb.Font = new Font(rtb.Font.Name, 13.0F, rtb.Font.Style, rtb.Font.Unit);
+            //rtb.ShortcutsEnabled = false;
+            rtb.KeyUp += new KeyEventHandler(Kdown);
+            rtb.TextChanged += new EventHandler(TxtChanged);
+            var cms = CreateCms();
             rtb.ContextMenuStrip = cms;
             return rtb;
         }
@@ -574,28 +644,26 @@ namespace note__
         {
             RichTextBox rtb = new RichTextBox();
             rtb.Name = "rtb";
-            rtb.LoadFile(path);
+            //rtb.LoadFile(path);
+            try
+            {
+                rtb.Rtf = File.ReadAllText(path);
+            }
+            catch (ArgumentException e)
+            {
+                rtb.Text = File.ReadAllText(path);
+            }
             rtb.BackColor = Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            //rtb.ForeColor = Color.White;
             rtb.BorderStyle = BorderStyle.None;
             rtb.Dock = DockStyle.Fill;
             rtb.Margin = new Padding(10, 0, 0, 0);
+            //rtb.Font = new Font(rtb.Font.Name, 13.0F, rtb.Font.Style, rtb.Font.Unit);
             rtb.ShortcutsEnabled = false;
             rtb.KeyUp += new KeyEventHandler(Kdown);
-            ContextMenuStrip cms = new ContextMenuStrip();
-            ToolStripMenuItem copyItem = new ToolStripMenuItem("Copy");
-            copyItem.Click += new EventHandler(CopySelected);
-            copyItem.ShortcutKeys = (Keys.Control | Keys.C);
-            ToolStripMenuItem cutItem = new ToolStripMenuItem("Cut");
-            ToolStripMenuItem pasteItem = new ToolStripMenuItem("Paste");
-            pasteItem.ShortcutKeys = (Keys.Control | Keys.V);
-            pasteItem.Click += new EventHandler(Paste);
-            ToolStripMenuItem selectAllItem = new ToolStripMenuItem("Select All");
-            List<ToolStripMenuItem> temp = (new[] { copyItem, pasteItem, cutItem, selectAllItem, }).ToList();
-            temp.ForEach(x => x.DisplayStyle = ToolStripItemDisplayStyle.Text);
-            cms.Items.AddRange(temp.ToArray());
+            var cms = CreateCms();
             rtb.ContextMenuStrip = cms;
             return rtb;
-
         }
 
 
@@ -705,14 +773,15 @@ namespace note__
 
 
         }
-        private void SaveAsButtonClick(object sender, EventArgs e)
+        
+    private void SaveAsButtonClick(object sender, EventArgs e)
         {
             TabPage selectedTab = this.tabControl1.SelectedTab;
             var cached = cachedFiles.Find(x => x.FullPath == selectedTab.Text || selectedTab.Text == x.TempName);
 
             using (SaveFileDialog dialog = new SaveFileDialog())
             {
-                dialog.Filter = "(*.txt)|*.txt|(*.rtf)|*.rtf";
+                dialog.Filter = "(*.txt)|*.txt|(*.rtf)|*.rtf|(*.cs)|*.cs";
                 dialog.FileName = cached.TempName;
                 dialog.DefaultExt = cached.Extension;
                 dialog.FilterIndex = 1;
@@ -723,6 +792,12 @@ namespace note__
                     {
                         string text;
                         if (Path.GetExtension(dialog.FileName) == ".txt")
+                        {
+                            text = (selectedTab.Controls.Find("rtb", true)[0] as RichTextBox).Text;
+                            File.WriteAllText(dialog.FileName, text);
+                        }
+
+                        else if (Path.GetExtension(dialog.FileName) == ".cs")
                         {
                             text = (selectedTab.Controls.Find("rtb", true)[0] as RichTextBox).Text;
                             File.WriteAllText(dialog.FileName, text);
