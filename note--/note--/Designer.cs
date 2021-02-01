@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using System.Drawing;
-using System.Linq;
 
 namespace note__
 {
     public class Designer
     {
-        public readonly Color DarkGray = Color.FromArgb(42,42,42);
+        public readonly Color DarkGray = Color.FromArgb(42, 42, 42);
         public readonly Color SpaceGray = Color.FromArgb(32, 32, 32);
         public readonly Color Gray = Color.FromArgb(50, 50, 50);
         public readonly Color White = Color.White;
@@ -21,9 +17,14 @@ namespace note__
             BW = 1,
             WB = 2
         }
+
+        /// <summary>
+        /// Получить нормальный цвет текста в зависиомсти от цвета схемы.
+        /// </summary>
+        /// <returns></returns>
         public Color FontColorDependOnScheme()
         {
-            if(ColorScheme == CScheme.BW)
+            if (ColorScheme == CScheme.BW)
             {
                 return Color.White;
             }
@@ -32,15 +33,19 @@ namespace note__
                 return DarkGray;
             }
         }
-        public  void BlackAndWhiteScheme()
+
+        /// <summary>
+        /// Активация темной темы.
+        /// </summary>
+        public void BlackAndWhiteScheme()
         {
             form.BackColor = SpaceGray;
-            foreach(Control control in form.Controls)
+            foreach (Control control in form.Controls)
             {
-                if(control is MenuStrip)
+                if (control is MenuStrip)
                 {
                     control.BackColor = Gray;
-                    foreach(var b in (control as MenuStrip).Items)
+                    foreach (var b in (control as MenuStrip).Items)
                     {
                         if (b is ToolStripMenuItem)
                         {
@@ -66,7 +71,7 @@ namespace note__
                         }
                     }
                 }
-                else if(control is TabControl)
+                else if (control is TabControl)
                 {
                     control.BackColor = SpaceGray;
                     foreach (var t in (control as TabControl).TabPages)
@@ -75,7 +80,7 @@ namespace note__
                         (t as TabPage).ForeColor = White;
                         foreach (var r in (t as TabPage).Controls)
                         {
-                            if(r is RichTextBox)
+                            if (r is RichTextBox)
                             {
                                 (r as RichTextBox).BackColor = SpaceGray;
                                 (r as RichTextBox).ForeColor = White;
@@ -94,7 +99,7 @@ namespace note__
                         }
                     }
                 }
-                else if(control is RichTextBox)
+                else if (control is RichTextBox)
                 {
                     (control as RichTextBox).BackColor = DarkGray;
                     (control as RichTextBox).ForeColor = Color.Coral;
@@ -105,6 +110,10 @@ namespace note__
             form.Update();
             ColorScheme = CScheme.BW;
         }
+
+        /// <summary>
+        /// Активировать светлую тему.
+        /// </summary>
         public void WhiteAndBlackScheme()
         {
             form.BackColor = White;
@@ -166,7 +175,7 @@ namespace note__
                         }
                     }
                 }
-                else if(control is RichTextBox)
+                else if (control is RichTextBox)
                 {
                     (control as RichTextBox).BackColor = White;
                     (control as RichTextBox).ForeColor = Color.Coral;
@@ -176,6 +185,9 @@ namespace note__
             form.Update();
             ColorScheme = CScheme.WB;
         }
+        /// <summary>
+        /// Активировать текущую схему.
+        /// </summary>
         public void ActivateCurrent()
         {
             switch (ColorScheme)
@@ -191,6 +203,11 @@ namespace note__
                     return;
             }
         }
+        /// <summary>
+        /// Конструктор
+        /// </summary>
+        /// <param name="form"> Форма. </param>
+        /// <param name="scheme"> Цветовая схема. </param>
         public Designer(Form1 form, CScheme scheme = CScheme.WB)
         {
             this.form = form;

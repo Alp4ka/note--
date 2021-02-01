@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 
@@ -23,8 +22,15 @@ namespace note__
             Designer.CScheme scheme = ParseScheme(settingsPath);
             int delay = ParseDelay(settingsPath);
             string[] files = ParseFiles(cachedPath);
-            Application.Run(new Form1(files, scheme, delay));
+            var form = new Form1(files, scheme, delay);
+            Application.Run(form);
+
         }
+        /// <summary>
+        /// Парс файлов.
+        /// </summary>
+        /// <param name="path"> Путь до файла с данными. </param>
+        /// <returns> Массив строк - пути до файлов. </returns>
         private static string[] ParseFiles(string path)
         {
             try
@@ -47,9 +53,15 @@ namespace note__
             {
                 return null;
             }
-            
+
 
         }
+
+        /// <summary>
+        /// Парс задержки автосейва.
+        /// </summary>
+        /// <param name="path"> Путь до файла с настрйоками. </param>
+        /// <returns> Время задержки автосейва. </returns>
         private static int ParseDelay(string path)
         {
             int delay;
@@ -85,6 +97,11 @@ namespace note__
                 return Utils.delays[0];
             }
         }
+        /// <summary>
+        /// Парс цветовой схемы.
+        /// </summary>
+        /// <param name="path"> Путь до файла с настройками. </param>
+        /// <returns> Цветовая схема CScheme. </returns>
         private static Designer.CScheme ParseScheme(string path)
         {
             int scheme;
@@ -93,7 +110,7 @@ namespace note__
                 return Designer.CScheme.WB;
             }
             string[] text = File.ReadAllLines(path);
-            if(text.Length == 0)
+            if (text.Length == 0)
             {
                 return Designer.CScheme.WB;
             }

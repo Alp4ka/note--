@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
@@ -22,9 +20,15 @@ namespace note__
         private string _compilerPath = @"C:\Windows\Microsoft.NET\Framework\v3.5\csc.exe";
         private int _delay = Utils.delays[0];
         private Dictionary<int, ToolStripMenuItem> delayToTool = new Dictionary<int, ToolStripMenuItem>();
+        /// <summary>
+        /// Конструктор.
+        /// </summary>
+        /// <param name="files"> Файлы для открытия при запуске. </param>
+        /// <param name="scheme"> Цветовая схема при запуске. </param>
+        /// <param name="delay"> Задержка автосейва при запуске. </param>
         public Form1(string[] files = null, Designer.CScheme scheme = Designer.CScheme.WB, int delay = 30000)
         {
-            
+
             InitializeComponent();
             delayToTool.Add(Utils.delays[0], thirtySecButton);
             delayToTool.Add(Utils.delays[1], minuteButton);
@@ -50,24 +54,32 @@ namespace note__
                     OpenFileByPath(path);
                 }
             }
-
             compilePathButton.Text = "Set Compiler " + _compilerPath;
+            GoToHelp(null, null);
         }
+        /// <summary>
+        /// Переключить подсветку.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="myEventArgs"></param>
         private void ToggleOutline(object sender, EventArgs myEventArgs)
         {
-            if((sender as ToolStripMenuItem).Checked)
+            if ((sender as ToolStripMenuItem).Checked)
             {
                 (sender as ToolStripMenuItem).Checked = false;
             }
             else
             {
-                    DrawOutline(true);
+                DrawOutline(true);
 
                 (sender as ToolStripMenuItem).Checked = true;
             }
         }
 
-
+        /// <summary>
+        /// Нарисовать подсветку.
+        /// </summary>
+        /// <param name="state"></param>
         private void DrawOutline(bool state)
         {
             TabPage selectedTab = tabControl1.SelectedTab;
@@ -78,14 +90,13 @@ namespace note__
             var cached = cachedFiles.Find(x => x.FullPath == selectedTab.Text || selectedTab.Text == x.TempName);
             var rtb = GetRtbInTab(selectedTab);
             var cursorPosition = rtb.SelectionStart;
-            rtb.SelectionStart = 0;
-            rtb.SelectionLength = rtb.Text.Length;
+            rtb.SelectAll();
             rtb.SelectionColor = _designer.FontColorDependOnScheme();
             if (state)
             {
                 rtb.SuspendLayout();
                 string text = rtb.Text;
-                List<Color> colors = new List<Color>(new Color[] {Color.Blue, Color.Magenta, Color.Green});
+                List<Color> colors = new List<Color>(new Color[] { Color.Blue, Color.Magenta, Color.Green });
                 List<string[]> serviceWords = new List<string[]>();
                 serviceWords.Add(Utils.blueWords);
                 serviceWords.Add(Utils.magentaWords);
@@ -102,7 +113,7 @@ namespace note__
                             {
                                 start = text.IndexOf(word, startTemp);
                             }
-                            catch 
+                            catch
                             {
                                 break;
                             }
@@ -130,17 +141,17 @@ namespace note__
                 //strings
                 while (true)
                 {
-                    if(tempStart >= text.Length)
+                    if (tempStart >= text.Length)
                     {
                         break;
                     }
                     var indexStart = text.IndexOf('"', tempStart);
-                    if(indexStart == -1)
+                    if (indexStart == -1)
                     {
                         break;
                     }
                     var indexEnd = -1;
-                    if(indexStart + 1 >= text.Length)
+                    if (indexStart + 1 >= text.Length)
                     {
                         indexEnd = text.Length;
                     }
@@ -148,18 +159,18 @@ namespace note__
                     {
                         indexEnd = text.IndexOf('"', indexStart + 1);
                     }
-                    if(indexEnd == -1)
+                    if (indexEnd == -1)
                     {
                         indexEnd = text.Length;
                         rtb.SelectionStart = indexStart;
-                        rtb.SelectionLength = indexEnd - indexStart+1;
+                        rtb.SelectionLength = indexEnd - indexStart + 1;
                         rtb.SelectionColor = Color.Coral;
                         break;
                     }
                     rtb.SelectionStart = indexStart;
-                    rtb.SelectionLength = indexEnd - indexStart+1;
+                    rtb.SelectionLength = indexEnd - indexStart + 1;
                     rtb.SelectionColor = Color.Coral;
-                    tempStart = indexEnd+1;
+                    tempStart = indexEnd + 1;
                 }
                 tempStart = 0;
                 while (true)
@@ -223,6 +234,12 @@ namespace note__
                 rtb.ResumeLayout();
             }
         }
+
+        /// <summary>
+        /// Выбрать компилятор.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SetCompiler(object sender, EventArgs e)
         {
             var openFileDialog2 = new OpenFileDialog { Title = "Choose compiler", Filter = ".exe|*.exe" };
@@ -230,12 +247,23 @@ namespace note__
             if (res != DialogResult.OK)
                 return;
             _compilerPath = openFileDialog2.FileName;
-            (sender as ToolStripMenuItem).Text = "Set Compiler " + _compilerPath;
+            compilePathButton.Text = "Set Compiler " + _compilerPath;
         }
+
+        /// <summary>
+        /// Событие изменения текста.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected void TxtChanged(object sender, EventArgs e)
         {
             outlineButton.Checked = false;
         }
+        /// <summary>
+        /// Событе на тик таймера автосейва.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="myEventArgs"></param>
         private void TimerEventProcessor(object sender, EventArgs myEventArgs)
         {
             TabPage selectedTab = tabControl1.SelectedTab;
@@ -248,7 +276,7 @@ namespace note__
             if (cached.FullPath != null && File.Exists(cached.FullPath))
             {
                 string text = "";
-                if(cached.Extension == ".rtf")
+                if (cached.Extension == ".rtf")
                 {
                     var rb = (selectedTab.Controls.Find("rtb", true)[0] as RichTextBox);
                     rb.SaveFile(cached.FullPath);
@@ -259,16 +287,16 @@ namespace note__
                     File.WriteAllText(cached.FullPath, text);
                 }
             }
-            //_autoSave.Stop();
-            //_autoSave.Start();
         }
 
-        
+        /// <summary>
+        /// Переключение автосейва.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ToggleAutoSave(object sender, EventArgs e)
         {
-
-
-            foreach(ToolStripMenuItem item in timerButton.DropDownItems)
+            foreach (ToolStripMenuItem item in timerButton.DropDownItems)
             {
                 item.Checked = false;
             }
@@ -279,6 +307,11 @@ namespace note__
             _autoSave.Start();
         }
 
+        /// <summary>
+        /// Переключение стиля шрифта.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void ToggleFont(object sender, EventArgs e)
         {
             TabPage selectedTab = this.tabControl1.SelectedTab;
@@ -309,10 +342,9 @@ namespace note__
                     return;
             }
 
-                
-            if ((rtb.SelectionFont.Bold && temp == FontStyle.Bold) || 
-                (rtb.SelectionFont.Italic && temp == FontStyle.Italic) || 
-                (rtb.SelectionFont.Underline && temp == FontStyle.Underline ) || 
+            if ((rtb.SelectionFont.Bold && temp == FontStyle.Bold) ||
+                (rtb.SelectionFont.Italic && temp == FontStyle.Italic) ||
+                (rtb.SelectionFont.Underline && temp == FontStyle.Underline) ||
                 (rtb.SelectionFont.Strikeout && temp == FontStyle.Strikeout))
             {
 
@@ -322,15 +354,19 @@ namespace note__
             {
                 fontStyle = temp;
             }
-            rtb.SelectionFont = new Font(font.FontFamily,font.Size, fontStyle);
+            rtb.SelectionFont = new Font(font.FontFamily, font.Size, fontStyle);
         }
 
-
+        /// <summary>
+        /// Клик на кнопку Undo.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void UndoButtonClick(object sender, EventArgs e)
         {
 
             TabPage selectedTab = this.tabControl1.SelectedTab;
-            if(selectedTab == null)
+            if (selectedTab == null)
             {
                 MessageBox.Show(
                 $"There is nothing to undo.",
@@ -352,16 +388,34 @@ namespace note__
                 MessageBoxDefaultButton.Button1);
                 return;
             }
-            //string text = rtb.Rtf;
-            rtb.Rtf = cached.Undo();
+            try
+            {
+                rtb.Rtf = cached.Undo();
+            }
+            catch
+            {
+                try
+                {
+                    rtb.Text = cached.Undo();
+                }
+                catch
+                {
+                    return;
+                }
+            }
             rtb.SelectionStart = rtb.Text.Length;
 
         }
 
+        /// <summary>
+        /// Клик на кнопку Redo.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RedoButtonClick(object sender, EventArgs e)
         {
             TabPage selectedTab = this.tabControl1.SelectedTab;
-            if(selectedTab == null)
+            if (selectedTab == null)
             {
                 MessageBox.Show(
                 $"There is nothing to redo.",
@@ -384,9 +438,29 @@ namespace note__
                 return;
             }
             string text = rtb.Rtf;
-            rtb.Rtf = cached.Redo();
+            try
+            {
+                rtb.Rtf = cached.Redo();
+            }
+            catch
+            {
+                try
+                {
+                    rtb.Text = cached.Redo();
+                }
+                catch
+                {
+                    return;
+                }
+            }
             rtb.SelectionStart = rtb.Text.Length;
         }
+
+        /// <summary>
+        /// Получить rtb в TabPage.
+        /// </summary>
+        /// <param name="tp"> Нужная страница. </param>
+        /// <returns> РичТекстБокс в табе. </returns>
         private RichTextBox GetRtbInTab(TabPage tp)
         {
             if (tp.Controls.Find("rtb", true).Length > 0)
@@ -398,10 +472,16 @@ namespace note__
                 return null;
             }
         }
+
+        /// <summary>
+        /// Форматировать документ.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void FormatCurrentFile(object sender, EventArgs e)
         {
             TabPage selectedTab = this.tabControl1.SelectedTab;
-            if(selectedTab == null)
+            if (selectedTab == null)
             {
                 MessageBox.Show(
                 $"There is nothing to edit.",
@@ -469,14 +549,26 @@ namespace note__
             rtb.Text = text;
             Kdown(rtb, null);
         }
+
+        /// <summary>
+        /// Сохранить все файлы.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SaveAll(object sender, EventArgs e)
         {
-            foreach(TabPage tab in tabControl1.TabPages)
+            foreach (TabPage tab in tabControl1.TabPages)
             {
                 tabControl1.SelectedTab = tab;
-                SaveAsButtonClick(null ,null);
+                SaveAsButtonClick(null, null);
             }
         }
+
+        /// <summary>
+        /// Событие нажатия кнопки на rtb.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Kdown(object sender, KeyEventArgs e)
         {
             if (e != null)
@@ -495,14 +587,30 @@ namespace note__
                 cached.SaveChange(text);
             }
         }
+
+        /// <summary>
+        /// Клик на кнопку темной темы.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BwClick(object sender, EventArgs e)
         {
             _designer.BlackAndWhiteScheme();
         }
+        /// <summary>
+        /// Клик на кнопку светлой темы.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void WbClick(object sender, EventArgs e)
         {
             _designer.WhiteAndBlackScheme();
         }
+        /// <summary>
+        /// Открыть помощь.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void GoToHelp(object sender, EventArgs e)
         {
             try
@@ -517,6 +625,11 @@ namespace note__
                 MessageBox.Show($"It was supposed you 'll be able to open this site in broweser but something went wrong :C. \n\nInfo:\n {ex.Message}", "Ooops...");
             }
         }
+        /// <summary>
+        /// Создать новый файл в табе.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CreateButtonClick(object sender, EventArgs e)
         {
             var tp = new TabPage();
@@ -536,9 +649,14 @@ namespace note__
             _designer.ActivateCurrent();
 
         }
+        /// <summary>
+        /// Закрыть файл.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CloseButtonClick(object sender, EventArgs e)
         {
-                TabPage selectedTab = this.tabControl1.SelectedTab;
+            TabPage selectedTab = this.tabControl1.SelectedTab;
             var cached = cachedFiles.Find(x => x.FullPath == selectedTab.Text || selectedTab.Text == x.TempName);
             if (cached == null)
             {
@@ -563,12 +681,22 @@ namespace note__
             }
         }
 
+        /// <summary>
+        /// Принудительное закрытие.
+        /// </summary>
+        /// <param name="selectedTab"> выбранный TabPage. </param>
+        /// <param name="cf"> cachedFile для закрытия. </param>
         private void ForceClose(TabPage selectedTab, CachedFile cf)
         {
 
             tabControl1.TabPages.Remove(selectedTab);
             cachedFiles.Remove(cf);
         }
+
+        /// <summary>
+        /// Создать контекстное меню.
+        /// </summary>
+        /// <returns> Контекстное меню с нужными параметрами. </returns>
         private ContextMenuStrip CreateCms()
         {
             ContextMenuStrip cms = new ContextMenuStrip();
@@ -586,6 +714,11 @@ namespace note__
             return cms;
         }
 
+        /// <summary>
+        /// Закомпилить.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CompileAsCs(object sender, EventArgs e)
         {
             try
@@ -613,7 +746,6 @@ namespace note__
                 process.Start();
                 string output = process.StandardOutput.ReadToEnd();
                 process.WaitForExit();
-                //MessageBox.Show(process.StandardOutput.ReadToEnd());
                 process.Close();
                 infoBox.Text = output;
             }
@@ -622,6 +754,12 @@ namespace note__
                 MessageBox.Show("Choose correct compiler. Maybe it's in C:/Windows/Microsoft.NET/Framework/v3.5/csc.exe", "Wrong Compiler");
             }
         }
+
+        /// <summary>
+        /// Получить РичТекстБокс по тексту.
+        /// </summary>
+        /// <param name="text"> Текст для копирования. </param>
+        /// <returns> Получить РичТекстБокс по пути. </returns>
         private RichTextBox RtbByText(string text)
         {
             RichTextBox rtb = new RichTextBox();
@@ -633,32 +771,35 @@ namespace note__
             rtb.Dock = DockStyle.Fill;
             rtb.Margin = new Padding(10, 0, 0, 0);
             rtb.Font = new Font(rtb.Font.Name, 13.0F, rtb.Font.Style, rtb.Font.Unit);
-            //rtb.ShortcutsEnabled = false;
             rtb.KeyUp += new KeyEventHandler(Kdown);
             rtb.TextChanged += new EventHandler(TxtChanged);
             var cms = CreateCms();
             rtb.ContextMenuStrip = cms;
             return rtb;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"> Путь до файла. </param>
+        /// <returns> Получить РичТекстБокс по пути. </returns>
         private RichTextBox RtbByPath(string path)
         {
             RichTextBox rtb = new RichTextBox();
             rtb.Name = "rtb";
-            //rtb.LoadFile(path);
             try
             {
                 rtb.Rtf = File.ReadAllText(path);
             }
-            catch (ArgumentException e)
+            catch
             {
                 rtb.Text = File.ReadAllText(path);
+                MessageBox.Show("Unable to load rtf properties", "Ooops...");
             }
             rtb.BackColor = Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            //rtb.ForeColor = Color.White;
             rtb.BorderStyle = BorderStyle.None;
             rtb.Dock = DockStyle.Fill;
             rtb.Margin = new Padding(10, 0, 0, 0);
-            //rtb.Font = new Font(rtb.Font.Name, 13.0F, rtb.Font.Style, rtb.Font.Unit);
             rtb.ShortcutsEnabled = false;
             rtb.KeyUp += new KeyEventHandler(Kdown);
             var cms = CreateCms();
@@ -666,7 +807,11 @@ namespace note__
             return rtb;
         }
 
-
+        /// <summary>
+        /// Скопироват в буфер обмена.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CopySelected(object sender, EventArgs e)
         {
             try
@@ -680,6 +825,11 @@ namespace note__
             }
         }
 
+        /// <summary>
+        /// Выделить все.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SelectAllText(object sender, EventArgs e)
         {
             try
@@ -693,9 +843,14 @@ namespace note__
             }
         }
 
+        /// <summary>
+        /// Вставить без стилей.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Paste(object sender, EventArgs e)
         {
-            
+
             try
             {
                 var rtb = tabControl1.SelectedTab.Controls.Find("rtb", true)[0] as RichTextBox;
@@ -706,6 +861,12 @@ namespace note__
                 return;
             }
         }
+
+        /// <summary>
+        /// Вырезать выделенный текст.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CutSelected(object sender, EventArgs e)
         {
             var rtb = tabControl1.SelectedTab.Controls.Find("rtb", true)[0] as RichTextBox;
@@ -720,6 +881,10 @@ namespace note__
             }
         }
 
+        /// <summary>
+        /// Открыть файл по пути.
+        /// </summary>
+        /// <param name="fullpath"> Путь до файла. </param>
         private void OpenFileByPath(string fullpath)
         {
             if (cachedFiles.Select(x => x.FullPath).Contains(fullpath))
@@ -759,22 +924,27 @@ namespace note__
             tabControl1.SelectedTab = tp;
             _designer.ActivateCurrent();
         }
+
+        /// <summary>
+        /// Клик на кнопку открыть.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OpenButtonClick(object sender, EventArgs e)
         {
-
-
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 string fullpath = openFileDialog1.FileName;
                 OpenFileByPath(fullpath);
             }
-
-
-
-
         }
-        
-    private void SaveAsButtonClick(object sender, EventArgs e)
+
+        /// <summary>
+        /// Сохранитб как - событие клика.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SaveAsButtonClick(object sender, EventArgs e)
         {
             TabPage selectedTab = this.tabControl1.SelectedTab;
             var cached = cachedFiles.Find(x => x.FullPath == selectedTab.Text || selectedTab.Text == x.TempName);
@@ -821,6 +991,11 @@ namespace note__
             }
         }
 
+        /// <summary>
+        /// Событие закрытия формы.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CloseMethod(object sender, FormClosingEventArgs e)
         {
             DialogResult result = MessageBox.Show(
@@ -837,9 +1012,9 @@ namespace note__
                 string delayAsString = _delay.ToString();
                 try
                 {
-                    File.WriteAllLines(Program.settingsPath, new string[] { schemeToSave , delayAsString});
+                    File.WriteAllLines(Program.settingsPath, new string[] { schemeToSave, delayAsString });
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message);
                 }
@@ -847,7 +1022,7 @@ namespace note__
                 {
                     File.WriteAllLines(Program.cachedPath, cachedFiles.Select(x => x.FullPath).ToArray());
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message);
                 }
@@ -857,7 +1032,7 @@ namespace note__
             {
                 e.Cancel = true;
             }
-            
+
         }
     }
 }

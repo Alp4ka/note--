@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 namespace note__
 {
@@ -15,26 +12,38 @@ namespace note__
             "event", "extern", "ref", "out", " is ", " as ", "params", "arglist", "makeref", "reftype", "refvalue", "this", "base",
             "namespace", "using", "checked", "unchecked", "unsafe", "implicit", "explicit"
         };
-        public static string[] magentaWords = { 
+        public static string[] magentaWords = {
             "try", "for", " in ", "case", "while", "if", "else", "foreach", " do", " switch", " throw ",
             "catch", "finally", "goto", "break;" , "default", "continue", "return"
         };
-        public static string[] greenWords = { "class", "struct", "interface", "enum", "delegate", "operator", "-", "+", "=", "*", "&", "%", "/", "$", "|", "^"};
-        public static readonly int[] delays = {30000, 60000, 300000 };
+        public static string[] greenWords = { "class", "struct", "interface", "enum", "delegate", "operator", "-", "+", "=", "*", "&", "%", "/", "$", "|", "^" };
+        public static readonly int[] delays = { 30000, 60000, 300000 };
+        /// <summary>
+        /// Ограничитель
+        /// </summary>
+        /// <param name="l"></param>
+        /// <param name="r"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static int ReturnEdged(int l, int r, int value)
         {
-            if(value < l)
+            if (value < l)
             {
                 return l;
             }
-            if (value > r) 
+            if (value > r)
             {
                 return r;
             }
             return value;
- 
+
         }
-        public static int GetMsByName(ToolStripMenuItem item) 
+        /// <summary>
+        /// Button.Name -> int value.
+        /// </summary>
+        /// <param name="item"> Нажатая кнопка. </param>
+        /// <returns> Целое число - задержка в миллисекундах. </returns>
+        public static int GetMsByName(ToolStripMenuItem item)
         {
             switch (item.Name)
             {
